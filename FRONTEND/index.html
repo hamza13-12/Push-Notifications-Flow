@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FCM Token Generator</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+</head>
+
+<body>
+    <h1>FCM Token Generator</h1>
+    <p id="token"></p>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQOyeCippYoAxGA0K7qeoPSmhFwcgfbtE",
+            authDomain: "test-notifications-3a770.firebaseapp.com",
+            projectId: "test-notifications-3a770",
+            storageBucket: "test-notifications-3a770.appspot.com",
+            messagingSenderId: "136320399536",
+            appId: "1:136320399536:web:634d21119a380d96c02375"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Initialize Firebase Cloud Messaging
+        const messaging = firebase.messaging();
+
+        // Get registration token. Initially this makes a network call, once retrieved
+        // subsequent calls to getToken will return from cache.
+        messaging.getToken({ vapidKey: 'BLGVzUbRADTyB9lis-3d2HFDZ1QR8j6bc2O0rAsC-TJvaGlBv09dMqHqo0rS6M_tJQbGh9mglKrubTvNV0PDWUE' }).then((currentToken) => {
+            if (currentToken) {
+                // We don't have to send token to server at this point. Simply log it
+                console.log('FCM Token:', currentToken);
+                document.getElementById('token').innerText = currentToken;
+            } else {
+                // Show permission request UI
+                console.log('No registration token available. Request permission to generate one.');
+                // Show permission UI and then call getToken again if permission is granted
+            }
+        }).catch((err) => {
+            console.error('An error occurred while retrieving token. ', err);
+        });
+
+        // Handle incoming messages
+        // - a message is received while the app has focus
+        // - the user clicks on an app notification created by a service worker
+        //   `messaging.onBackgroundMessage` handler.
+        messaging.onMessage((payload) => {
+            console.log('Message received. ', payload);
+            // Customize notification here
+            const notificationTitle = payload.notification.title;
+            const notificationOptions = {
+                body: payload.notification.body
+            };
+
+            if (Notification.permission === 'granted') {
+                new Notification(notificationTitle, notificationOptions);
+            }
+        });
+    </script>
+</body>
+
+</html>
